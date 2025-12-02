@@ -97,7 +97,22 @@ cost_t CostMatrix::reduce_cols() {
  * @return The sum of minimal values in row and col, excluding the intersection value.
  */
 cost_t CostMatrix::get_vertex_cost(std::size_t row, std::size_t col) const {
-    throw;  // TODO: Implement it!
+    cost_t cost = 0;
+    cost_t min_value = INF;
+    for (std::size_t j = 0; j < matrix_[row].size(); ++j) {
+        if (j != col and matrix_[row][j] < min_value) {
+            min_value = matrix_[row][j];
+        }
+    }
+    cost += min_value;
+    min_value = INF;
+    for (std::size_t i = 0; i < matrix_.size(); ++i) {
+        if (i != row and matrix_[i][col] < min_value) {
+            min_value = matrix_[i][col];
+        }
+    }
+    cost += min_value;
+    return cost;
 }
 
 /* PART 2 */
@@ -111,7 +126,13 @@ cost_t CostMatrix::get_vertex_cost(std::size_t row, std::size_t col) const {
  * @return The coordinates of the next vertex.
  */
 NewVertex StageState::choose_new_vertex() {
-    throw;  // TODO: Implement it!
+    for (cost_t row = 0; row < matrix_.size(); ++row) {
+        for (cost_t col = 0; col < matrix_[row].size(); ++col) {
+            if (not matrix_[row][col]) {
+                //stworz moze wektor vertex_t i emplace vertexy z row i col, potem sprawdzisz na ktorym get_vertex_cost najmniejszy
+            }
+        }
+    }
 }
 
 /**
@@ -127,7 +148,21 @@ void StageState::update_cost_matrix(vertex_t new_vertex) {
  * @return The sum of reduced values.
  */
 cost_t StageState::reduce_cost_matrix() {
-    throw;  // TODO: Implement it!
+    cost_t reduced_cost = matrix_.reduce_rows();
+    bool Zero_present = false;
+    for (std::size_t col = 0; col < matrix_[0].size(); ++col) {
+        for (std::size_t row = 0; row < matrix_.size(); ++row) {
+            if (not matrix_[row][col]) {
+                Zero_present = true;
+                break;
+            }
+        }
+        if (not Zero_present) {
+            reduced_cost += matrix_.reduce_cols();
+            break;
+        }
+    }
+    return reduced_cost;
 }
 
 /**
