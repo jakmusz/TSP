@@ -35,10 +35,11 @@ path_t StageState::get_path() {
             path.push_back(current_city);
         }
         else {
-            for (const auto& col : matrix_[current_city]) {
-                if (not is_inf(col)) {
-                    current_city = col;
+            for (auto j = 0; i < matrix_[current_city].size(); j++) {
+                if (not is_inf(matrix_[current_city][j])) {
+                    current_city = j; //TODO tu ma byc indeks kolumny a nie wartosc
                     path.push_back(current_city);
+                    break;
                 }
             }
         }
@@ -67,10 +68,12 @@ cost_t CostMatrix::reduce_rows() {
     const std::vector<cost_t> min_values = get_min_values_in_rows();
     cost_t sum = 0;
     for (int i = 0; i < matrix_.size(); ++i) {
-        for (cost_t col : matrix_[i]) {
+        sum += min_values[i];
+        if (is_inf(min_values[i])) continue;
+        for (cost_t& col : matrix_[i]) { //@TODO daj ref
             if (not is_inf(col)) {
                 col -= min_values[i];
-                sum += min_values[i];
+                 //@TODO nie sumuj po kazdej kolumnie tylko po wierszu
             }
         }
     }
@@ -99,11 +102,12 @@ std::vector<cost_t> CostMatrix::get_min_values_in_cols() const {
 cost_t CostMatrix::reduce_cols() {
     std::vector<cost_t> min_values = get_min_values_in_cols();
     cost_t sum = 0;
-    for (auto row : matrix_) {
-        for (int j = 0; j < row.size(); ++j) {
-            if (not is_inf(row[j])) {
-                row[j] -= min_values[j];
-                sum += min_values[j];
+    for (std::size_t j = 0; j < matrix_.size(); j++) {
+        if (is_inf(min_values[j])) continue;
+        sum += min_values[j];
+        for (std::size_t i = 0; i < matrix_.size(); i++) {
+            if (not is_inf(matrix_[i][j])) {
+                matrix_[i][j] -= min_values[j];
             }
         }
     }
@@ -311,7 +315,7 @@ tsp_solutions_t solve_tsp(const cost_matrix_t& cm) {
             }
 
             // 1. Reduce the matrix in rows and columns.
-            cost_t new_cost = 0; // @TODO (KROK 1)
+            cost_t new_cost = left_branch.reduce_cost_matrix();
 
             // 2. Update the lower bound and check the break condition.
             left_branch.update_lower_bound(new_cost);
@@ -320,12 +324,12 @@ tsp_solutions_t solve_tsp(const cost_matrix_t& cm) {
             }
 
             // 3. Get new vertex and the cost of not choosing it.
-            NewVertex new_vertex = NewVertex(); // @TODO (KROK 2)
+            NewVertex new_vertex = left_branch.choose_new_vertex();
 
-            // 4. @TODO Update the path - use append_to_path method.
-
-            // 5. @TODO (KROK 3) Update the cost matrix of the left branch.
-
+            // 4. Update the path - use append_to_path method.
+            left_branch.append_to_path(new_vertex.coordinates);
+            // 5.  (KROK 3) Update the cost matrix of the left branch.
+            left_branch.update_cost_matrix(new_vertex.coordinates);
             // 6. Update the right branch and push it to the LIFO.
             cost_t new_lower_bound = left_branch.get_lower_bound() + new_vertex.cost;
             tree_lifo.push(create_right_branch_matrix(cm, new_vertex.coordinates,
