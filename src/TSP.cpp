@@ -37,7 +37,7 @@ path_t StageState::get_path() {
         else {
             for (auto j = 0; i < matrix_[current_city].size(); j++) {
                 if (not is_inf(matrix_[current_city][j])) {
-                    current_city = j; //TODO tu ma byc indeks kolumny a nie wartosc
+                    current_city = j;
                     path.push_back(current_city);
                     break;
                 }
@@ -70,10 +70,10 @@ cost_t CostMatrix::reduce_rows() {
     for (int i = 0; i < matrix_.size(); ++i) {
         sum += min_values[i];
         if (is_inf(min_values[i])) continue;
-        for (cost_t& col : matrix_[i]) { //@TODO daj ref
+        for (cost_t& col : matrix_[i]) {
             if (not is_inf(col)) {
                 col -= min_values[i];
-                 //@TODO nie sumuj po kazdej kolumnie tylko po wierszu
+
             }
         }
     }
