@@ -158,16 +158,28 @@ void StageState::update_cost_matrix(vertex_t new_vertex) {
     }
     auto left_most = row;
     auto right_most = col;
-    const auto& new_left_most = std::find_if(unsorted_path_.cbegin(), unsorted_path_.cend(),
-        [row](const vertex_t& vertex) {return vertex.col == row;});
-    if (new_left_most != unsorted_path_.cend()) {
-        left_most = new_left_most->row;
+    while (true) {
+        const auto& new_left_most = std::find_if(unsorted_path_.cbegin(), unsorted_path_.cend(),
+        [left_most](const vertex_t& vertex) {return vertex.col == left_most;});
+        if (new_left_most != unsorted_path_.cend()) {
+            left_most = new_left_most->row;
+        }
+        else {
+            break;
+        }
+
     }
-    const auto& new_right_most = std::find_if(unsorted_path_.cbegin(), unsorted_path_.cend(),
-        [col](const vertex_t& vertex) {return vertex.row == col;});
-    if (new_right_most != unsorted_path_.cend()) {
-        right_most = new_right_most->col;
+    while (true) {
+        const auto& new_right_most = std::find_if(unsorted_path_.cbegin(), unsorted_path_.cend(),
+        [right_most](const vertex_t& vertex) {return vertex.row == right_most;});
+        if (new_right_most != unsorted_path_.cend()) {
+            right_most = new_right_most->col;
+        }
+        else {
+            break;
+        }
     }
+
     matrix_[right_most][left_most] = INF;
 }
 
