@@ -24,8 +24,28 @@ std::ostream& operator<<(std::ostream& os, const CostMatrix& cm) {
  * @return The vector of consecutive vertex.
  */
 path_t StageState::get_path() {
-    throw;  // TODO: Implement it!
+    path_t path = {};
+    size_t next_city;
+    size_t current_city = 0;
+    for (auto i = 0; i < matrix_.size(); i++) {
+        const auto& current_vertex = std::find_if(unsorted_path_.begin(), unsorted_path_.end(),
+            [current_city](const auto& vertex) {return vertex.row == current_city;});
+        if (current_vertex != unsorted_path_.cend()) {
+            current_city = current_vertex->col;
+            path.push_back(current_city);
+        }
+        else {
+            for (const auto& col : matrix_[current_city]) {
+                if (not is_inf(col)) {
+                    current_city = col;
+                    path.push_back(current_city);
+                }
+            }
+        }
+    }
+    return path;
 }
+
 
 /**
  * Get minimum values from each row and returns them.
