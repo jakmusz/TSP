@@ -126,13 +126,16 @@ cost_t CostMatrix::get_vertex_cost(std::size_t row, std::size_t col) const {
  * @return The coordinates of the next vertex.
  */
 NewVertex StageState::choose_new_vertex() {
-    for (cost_t row = 0; row < matrix_.size(); ++row) {
-        for (cost_t col = 0; col < matrix_[row].size(); ++col) {
+    std::vector<NewVertex> vertexes = {};
+    for (std::size_t row = 0; row < matrix_.size(); ++row) {
+        for (std::size_t col = 0; col < matrix_[row].size(); ++col) {
             if (not matrix_[row][col]) {
-                //stworz moze wektor vertex_t i emplace vertexy z row i col, potem sprawdzisz na ktorym get_vertex_cost najmniejszy
+                vertexes.emplace_back(vertex_t(row,col),matrix_.get_vertex_cost(row,col));
             }
         }
     }
+    return *std::max_element(vertexes.cbegin(), vertexes.cend(),
+        [](const NewVertex& lhs, const NewVertex& rhs) {return lhs.cost < rhs.cost;});
 }
 
 /**
@@ -140,7 +143,20 @@ NewVertex StageState::choose_new_vertex() {
  * @param new_vertex
  */
 void StageState::update_cost_matrix(vertex_t new_vertex) {
-    throw;  // TODO: Implement it!
+    std::size_t row = new_vertex.row;
+    std::size_t col = new_vertex.col;
+    matrix_[row][col] = INF;
+    for (auto& c : matrix_[row]) {
+        if (not is_inf(c)) {
+            c = INF;
+        }
+    }
+    for (std::size_t i = 0; i < matrix_.size(); ++i) {
+        if (not is_inf(matrix_[i][col])) {
+            matrix_[i][col] = INF;
+        }
+    }
+    //cykle?
 }
 
 /**
