@@ -156,7 +156,19 @@ void StageState::update_cost_matrix(vertex_t new_vertex) {
             matrix_[i][col] = INF;
         }
     }
-    //cykle?
+    auto left_most = row;
+    auto right_most = col;
+    const auto& new_left_most = std::find_if(unsorted_path_.cbegin(), unsorted_path_.cend(),
+        [row](const vertex_t& vertex) {return vertex.col == row;});
+    if (new_left_most != unsorted_path_.cend()) {
+        left_most = new_left_most->row;
+    }
+    const auto& new_right_most = std::find_if(unsorted_path_.cbegin(), unsorted_path_.cend(),
+        [col](const vertex_t& vertex) {return vertex.row == col;});
+    if (new_right_most != unsorted_path_.cend()) {
+        right_most = new_right_most->col;
+    }
+    matrix_[right_most][left_most] = INF;
 }
 
 /**
